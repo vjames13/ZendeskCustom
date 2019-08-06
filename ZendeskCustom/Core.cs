@@ -30,6 +30,9 @@ namespace ZendeskCustom
             ZendeskUrl = zendeskApiUrl;
             ApiToken = apiToken;
         }
+        
+        //Most of this code was just copied from the c# wrapper
+
         public T RunRequest<T>(string resource, string requestMethod, object body = null)
         {
             var response = RunRequest(resource, requestMethod, body);
@@ -109,11 +112,14 @@ namespace ZendeskCustom
             string auth = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", userName, password)));
             return string.Format("Basic {0}", auth);
         }
+
+        //Method for creating a ticket
         protected T GenericPost<T>(string resource, object body = null)
         {
             var res = RunRequest<T>(resource, "POST", body);
             return res;
         }
+        //method for searching for a ticket by ticket ID
         protected T GenericGet<T>(string resource)
         {
             return RunRequest<T>(resource, "GET");

@@ -8,18 +8,12 @@ namespace ZendeskCustom
     {
         static void Main()
         {
-            var api = new ZendeskApi("https://greenworkstools1552039260.zendesk.com/api/v2", "Vincent.James@cai.io", "re78ytjb");
 
+            //set up the API
+            var api = new ZendeskApi("https://greenworkstools1552039260.zendesk.com/api/v2", "Vincent.James@cai.io", "713apipassword");
+
+            //create an empty list of CustomField types to be populated with Custom Field IDs and Values
             IList<CustomField> test = new List<CustomField>();
-
-            //create the user if they don't already exist
-            //var user = api.Users.SearchByEmail(email);
-            //if (user == null || user.Users.Count < 1)
-            //    api.Users.CreateUser(new User()
-            //   {
-            //        Name = name,
-            //        Email = email
-            //    });
 
 
             Console.WriteLine("Enter 'search' to search a ticket, or 'create' to create a ticket");
@@ -35,23 +29,21 @@ namespace ZendeskCustom
                 Console.WriteLine("Enter the Description:");
                 string description = Console.ReadLine();
 
-                //Console.WriteLine("Enter the Unit ERP");
-                //string ERP = Console.ReadLine();
-
-                //long IDvalue = new long();
                 FieldOptions options = new FieldOptions();
 
-                //bool quit = false;
                 Console.WriteLine("Enter 'quit' at any entry to exit program");
 
                 while (true)
                 {
                     foreach (string fieldname in options.fieldnames)
                     {
-
+                        //get the index of whichever Custom field is currently being entered
                         int index1 = Array.IndexOf(options.fieldnames, fieldname);
+
+                        //get the ID of this custom field
                         long fieldid = options.idvals[index1];
 
+                        //Standard value entry for Custom fields that take a floating point decimal value
                         if (index1 == 4)
                         {
                             Console.WriteLine("This Entry takes a floating point value. Only A number may be entered");
@@ -64,13 +56,13 @@ namespace ZendeskCustom
                             continue;
 
                         }
-
+                        //gets current Date & Time for custom fields that take a Date value
                         if (index1 == 5 || index1 == 7)
                         {
                             Console.WriteLine("This Entry takes a datetime value. Using the current date & time. Press Enter to continue");
                             Console.WriteLine("Enter the value for " + fieldname + "(No Value Necessary, 5 second delay, then moving to next entry)");
-                            //var fieldvalue = Console.ReadLine();
-                            //var decvalue = float.Parse(fieldvalue);
+
+                            //convert DateTime to required format for upload to Zendesk
                             string dateval = DateTime.Today.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
                             Console.WriteLine("The value is:" + dateval);
                             CustomField enteredfield = new CustomField() { Id = fieldid, Value = dateval };
@@ -80,6 +72,7 @@ namespace ZendeskCustom
 
 
                         }
+                        //standard value entry for custom fields that take a boolean value (checkbox)
                         if (index1 == 10 || index1 == 11)
                         {
                             bool boolvalue = new bool();
@@ -95,13 +88,14 @@ namespace ZendeskCustom
                             {
                                 boolvalue = false;
                             }
-                            //bool boolvalue = bool.Parse(fieldvalue);
+
                             CustomField enteredfield = new CustomField() { Id = fieldid, Value = boolvalue };
                             test.Add(enteredfield);
                             continue;
 
 
                         }
+                        //standard value entry for custom fields that take a string Value
                         else
                         {
 
@@ -113,20 +107,14 @@ namespace ZendeskCustom
                                 break;
                             }
 
-
-
-                            //Console.WriteLine("Testing correct ID Value: " + options.idvals[index1].ToString());
-
                             CustomField enteredfield = new CustomField() { Id = fieldid, Value = fieldvalue };
 
                             test.Add(enteredfield);
                         }
 
-                        //Console.WriteLine("Current Index Test:" + index1.ToString());
                     }
 
-                    //360022775753
-
+                    //List all the entries to check if values actually got saved and match the correct IDs
                     foreach (CustomField fieldlistitem in test)
                     {
                         int index2 = test.IndexOf(fieldlistitem);
@@ -140,8 +128,7 @@ namespace ZendeskCustom
                         }
                     }
 
-                    //try
-                    //{
+
                     Console.WriteLine("Entry Finished, enter 'quit' to exit program without uploading or 'upload' to upload ticket to Zendesk");
                     string finalentry = Console.ReadLine();
                     if (finalentry == "quit")
@@ -156,7 +143,7 @@ namespace ZendeskCustom
                             Subject = subject,
                             Comment = new Comment() { Body = description },
                             Priority = "Normal",
-                            Requester = new Requester() { Email = "v.james713@gmail.com" },
+                            Requester = new Requester() { Email = "Vincent.James@cai.io" },
                             CustomFields = test
                         };
                         //create the new ticket
@@ -171,7 +158,8 @@ namespace ZendeskCustom
                     }
                 }
             }
-            else
+            //Search for an existing ticket
+            if (task == "search")
             {
                 while (true)
                 {
@@ -181,6 +169,7 @@ namespace ZendeskCustom
 
                     IndividualTicketResponse returnedticket = api.Tickets.GetTicket(ticketid);
 
+                    //print ticket fields
                     Console.WriteLine("Ticket Title: " + returnedticket.Ticket.Subject.ToString());
                     Console.WriteLine("Ticket Description: " + returnedticket.Ticket.Description.ToString());
                     foreach (CustomField fields in returnedticket.Ticket.CustomFields)
