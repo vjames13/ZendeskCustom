@@ -8,7 +8,7 @@ namespace ZendeskCustom.Models.Ticket
     public class CustomField
     {
         [JsonProperty("id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("value")]
         public object Value { get; set; }

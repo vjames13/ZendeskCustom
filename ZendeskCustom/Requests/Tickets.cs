@@ -25,5 +25,9 @@ namespace ZendeskCustom.Requests
         {
             return GenericGet<IndividualTicketResponse>(string.Format("{0}/{1}.json", _tickets, id));
         }
+        public GroupTicketFieldResponse GetTicketFields()
+        {
+            return GenericGet<GroupTicketFieldResponse>("ticket_fields.json");
+        }
     }
 }
